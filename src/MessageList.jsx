@@ -6,7 +6,10 @@ let MessageList = React.createClass({
     console.log("Rendering <MessageList/>");
     return (
       <div id="message-list">
-        <Message />
+        {this.props.messages.map((message) => (
+          <Message key={message.id} name={message.username} content={message.content}/>
+        ))}
+
       </div>
     );
   }
