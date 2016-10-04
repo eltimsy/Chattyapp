@@ -3,7 +3,6 @@ import React, {Component} from 'react';
 class ChatBar extends React.Component {
   constructor(props) {
     super(props);
-    //this.handleKeyPress = this.handleKeyPress.bind(this);
   }
 
   handleKeyPress(e) {
@@ -16,7 +15,13 @@ class ChatBar extends React.Component {
     console.log(this.props.text.value)
     return (
       <footer>
-        <input id="username" type="text" placeholder="Your Name (Optional)" value={this.props.username} />
+        <input
+        id="username"
+        type="text"
+        placeholder="Your Name (Optional)"
+        value={this.props.text.username}
+        onChange={this.props.text.userChange}
+         />
         <input
         id="new-message"
         type="text"
@@ -28,6 +33,8 @@ class ChatBar extends React.Component {
       </footer>
     );
   }
-
 }
+// ChatBar.propTypes = {
+//
+// }
 export default ChatBar;

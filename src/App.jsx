@@ -1,3 +1,4 @@
+var uuid = require('node-uuid');
 import React, {Component} from 'react';
 import ChatBar from './ChatBar.jsx';
 import MessageList from './MessageList.jsx';
@@ -17,60 +18,74 @@ var data = {
     }
   ]
 };
-let idvalue = 4;
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: data,
+      message: [],
       value: '',
-      idvalue: idvalue
+      idvalue: '',
+      username: ''
     };
     this.handleChange = this.handleChange.bind(this);
+    this.handleUser = this.handleUser.bind(this);
     this.update = this.update.bind(this);
+    this.socket = '';
+
   }
   handleChange(event) {
-   this.setState({value: event.target.value});
+    this.setState({value: event.target.value});
+  }
+  handleUser(event) {
+    this.setState({username: event.target.value});
   }
 
   componentDidMount() {
+    let connection = new WebSocket('ws://localhost:4000');
+    this.socket = connection;
+    console.log(this.socket)
     console.log("componentDidMount <App />");
-    setTimeout(() => {
-      console.log("Simulating incoming message");
-      // Add a new message to the list of messages in the data store
-      this.state.data.messages.push({id: 3, username: "Michelle", content: "Hello there!"});
-      // Update the state of the app component. This will call render()
-      this.setState({data: this.state.data})
-    }, 3000);
+    this.socket.onopen = function(event) {
+      console.log('Connected to server')
+    }
+    this.socket.onmessage = function (event) {
+      let data = JSON.parse(event.data);
+      this.state.message.push({id:data.id,  username:data.username , content: data.content});
+      this.setState({value: ""})
+      this.forceUpdate()
+    }.bind(this)
   }
+
 
   update() {
     console.log("update");
-    this.state.data.messages.push({id: this.state.idvalue, username: "Anon", content: this.state.value});
-    this.setState({data: this.state.data})
-    this.setState({value: ""})
-    this.state.idvalue += 1;
+    this.socket.send(JSON.stringify({
+      id: uuid.v4(),
+      username: this.state.username,
+      content: this.state.value
+    }));
+    // this.state.message.messages.push({id: uuid.v4(), username: this.state.username, content: this.state.value});
+    // this.setState({message: this.state.message})
+    // this.setState({value: ""})
+    // this.state.idvalue += 1;
   }
-
-
-  // getInitialState() {
-  //   return {data: data};
-  // },
   render() {
     console.log("Rendering <App/>");
     let valueLink = {
       value: this.state.value,
       requestChange: this.handleChange,
-      update: this.update
+      update: this.update,
+      username: this.state.username,
+      userChange: this.handleUser
     };
     return (
       <div className="wrapper">
         <nav>
           <h1>Chatty</h1>
         </nav>
-        <MessageList messages={this.state.data.messages}/>
-        <ChatBar username={this.state.data.currentUser.name} text={valueLink}/>
+        <MessageList messages={this.state.message}/>
+        <ChatBar text={valueLink}/>
       </div>
     );
   }
