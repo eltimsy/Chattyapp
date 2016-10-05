@@ -132,6 +132,10 @@ class App extends React.Component {
       username: this.state.username,
       oldusername: this.state.oldusername
     }));
+    this.setState({
+      oldusername: this.state.username,
+      firstmessage: true
+    })
   }
   render() {
     console.log("Rendering <App/>");
