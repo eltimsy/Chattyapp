@@ -21,9 +21,6 @@ wss.broadcast = function broadcast(data) {
   });
 };
 
-// Set up a callback that will run when a client connects to the server
-// When a client connects they are assigned a socket, represented by
-// the ws parameter in the callback.
 let userCount = {type: "userCount", users: 0};
 
 function color() {
@@ -40,16 +37,23 @@ wss.on('connection', (ws) => {
   userCount.users += 1;
   wss.broadcast(JSON.stringify(userCount));
   ws.color = color();
-  //wss.broadcast(JSON.stringify({type: "color", color: color()}));
   ws.on('open', function open(event) {
-
   })
   ws.on('message', function incoming(message) {
     console.log('message received')
     let mess = JSON.parse(message);
     if (mess.type === 'incomingMessage') {
-      mess.color = ws.color;
+      let image = mess.content.match(/(https?|ftp):\/\/.*\.(?:jpg|png|gif|bmp)/);
+      let message = mess.content.replace(/(https?|ftp):\/\/.*\.(?:jpg|png|gif|bmp)/, "");
+
       console.log(`User ${mess.username} said ${mess.content}`);
+      mess.color = ws.color;
+      mess.content = message;
+      if(image) {
+        mess.image = image[0];
+      } else {
+        mess.image = "";
+      }
       wss.broadcast(JSON.stringify(mess));
     }
     else if (mess.type === 'incomingNotification') {
@@ -58,7 +62,6 @@ wss.on('connection', (ws) => {
     }
 
   });
-
 
   // Set up a callback for when a client closes the socket. This usually means they closed their browser.
   ws.on('close', () => {

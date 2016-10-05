@@ -3,22 +3,6 @@ import React, {Component} from 'react';
 import ChatBar from './ChatBar.jsx';
 import MessageList from './MessageList.jsx';
 
-var data = {
-  currentUser: {name: "Bob"}, // optional. if currentUser is not defined, it means the user is Anonymous
-  messages: [
-    {
-      id: "1",
-      username: "Bob",
-      content: "Has anyone seen my marbles?",
-    },
-    {
-      id: "2",
-      username: "Anonymous",
-      content: "No, I think you lost them. You lost your marbles Bob. You lost them for good."
-    }
-  ]
-};
-
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -29,7 +13,8 @@ class App extends React.Component {
       username: '',
       oldusername: '',
       firstmessage: false,
-      loggedIn: ''
+      loggedIn: '',
+      image: ''
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleUser = this.handleUser.bind(this);
@@ -51,19 +36,20 @@ class App extends React.Component {
     console.log(this.socket)
     console.log("componentDidMount <App />");
     this.socket.onopen = function(event) {
-      //let color = JSON.parse(event);
       console.log('Connected to server')
     }
     this.socket.onmessage = function (event) {
       console.log('message here');
       let data = JSON.parse(event.data);
       console.log(data);
+      console.log(data.image)
       switch(data.type) {
         case "incomingMessage":
           this.state.message.push({
             id: data.id,
             username: data.username ,
             content: data.content,
+            image: data.image,
             color: data.color
           });
           break;
@@ -79,11 +65,6 @@ class App extends React.Component {
             loggedIn: data.users
           })
           break;
-        // case "color":
-        //   this.setState({
-        //     color: data.color
-        //   })
-        //   break;
         default:
 
           throw new Error("Unknown event type " + data.type);
@@ -112,7 +93,6 @@ class App extends React.Component {
         oldusername: this.state.username,
         firstmessage: true
       })
-      // this.state.firstmessage = true;
     } else {
       this.socket.send(JSON.stringify({
         type: "incomingNotification",
@@ -127,6 +107,12 @@ class App extends React.Component {
         oldusername: this.state.oldusername,
         content: this.state.value
       }));
+
+      this.setState({
+        value: "",
+        oldusername: this.state.username,
+        firstmessage: true
+      })
     }
   }
   updateUser() {

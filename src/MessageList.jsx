@@ -7,7 +7,13 @@ let MessageList = React.createClass({
     return (
       <div id="message-list">
         {this.props.messages.map((message) => (
-          <Message key={message.id} color={message.color} name={message.username} content={message.content}/>
+          <Message
+            key={message.id}
+            color={message.color}
+            image={message.image}
+            name={message.username}
+            content={message.content}
+          />
         ))}
 
       </div>
