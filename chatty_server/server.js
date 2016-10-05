@@ -24,15 +24,31 @@ wss.broadcast = function broadcast(data) {
 // Set up a callback that will run when a client connects to the server
 // When a client connects they are assigned a socket, represented by
 // the ws parameter in the callback.
+let userCount = {type: "userCount", users: 0};
+
+function color() {
+   const letters = '0123456789ABCDEF';
+   let color = '#';
+   for (let i = 0; i < 6; i++) {
+     color += letters[Math.floor(Math.random() * 16)];
+   }
+   return color;
+};
 wss.on('connection', (ws) => {
+
   console.log('Client connected');
-  wss.on('open', function open(event) {
-    wss.send('Connected to Server');
+  userCount.users += 1;
+  wss.broadcast(JSON.stringify(userCount));
+  ws.color = color();
+  //wss.broadcast(JSON.stringify({type: "color", color: color()}));
+  ws.on('open', function open(event) {
+
   })
   ws.on('message', function incoming(message) {
     console.log('message received')
     let mess = JSON.parse(message);
     if (mess.type === 'incomingMessage') {
+      mess.color = ws.color;
       console.log(`User ${mess.username} said ${mess.content}`);
       wss.broadcast(JSON.stringify(mess));
     }
@@ -41,10 +57,13 @@ wss.on('connection', (ws) => {
       wss.broadcast(JSON.stringify(mess));
     }
 
-    //ws.send("hello");
   });
 
 
   // Set up a callback for when a client closes the socket. This usually means they closed their browser.
-  ws.on('close', () => console.log('Client disconnected'));
+  ws.on('close', () => {
+    console.log('Client disconnected')
+    userCount.users -= 1;
+    wss.broadcast(JSON.stringify(userCount));
+  });
 });

@@ -3,6 +3,7 @@ html, body {
   max-height: 100vh;
   max-width: 100vw;
   font-family: 'Open Sans', sans-serif;
+  background-color: #819595;
 }
 .wrapper {
   font-size: 14px;
@@ -12,9 +13,17 @@ nav {
   height: 40px;
   padding: 8px;
   border-bottom: 1px solid black;
-  background-color: tomato;
+  background-color: #696773;
+  color: #4C2E05;
   h1 {
     margin: 0;
+  }
+  .usercount {
+    float: right;
+    text-size: 1.5em;
+    font-weight: bold;
+    margin-top: -20px;
+    margin-right: 5px;
   }
 }
 
@@ -47,7 +56,7 @@ nav {
 footer {
   height: 41px;
   border-top: 1px solid black;
-  background-color: tomato;
+  background-color: #696773;
   display: flex;
   align-items: center;
   input {

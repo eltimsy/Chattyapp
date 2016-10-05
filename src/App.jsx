@@ -28,7 +28,8 @@ class App extends React.Component {
       idvalue: '',
       username: '',
       oldusername: '',
-      firstmessage: false
+      firstmessage: false,
+      loggedIn: ''
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleUser = this.handleUser.bind(this);
@@ -50,6 +51,7 @@ class App extends React.Component {
     console.log(this.socket)
     console.log("componentDidMount <App />");
     this.socket.onopen = function(event) {
+      //let color = JSON.parse(event);
       console.log('Connected to server')
     }
     this.socket.onmessage = function (event) {
@@ -61,7 +63,8 @@ class App extends React.Component {
           this.state.message.push({
             id: data.id,
             username: data.username ,
-            content: data.content
+            content: data.content,
+            color: data.color
           });
           break;
         case "incomingNotification":
@@ -70,16 +73,17 @@ class App extends React.Component {
             username: "",
             content: `${data.oldusername} has change their name to ${data.username}!`
           })
-          // this.state.message.push({
-          //   id: data.id,
-          //   username: data.username ,
-          //   content: data.content
-          // });
-          // this.setState({
-          //   value: "",
-          //   oldusername: data.username
-          // })
           break;
+        case "userCount":
+          this.setState({
+            loggedIn: data.users
+          })
+          break;
+        // case "color":
+        //   this.setState({
+        //     color: data.color
+        //   })
+        //   break;
         default:
 
           throw new Error("Unknown event type " + data.type);
@@ -87,7 +91,9 @@ class App extends React.Component {
       this.forceUpdate()
     }.bind(this)
   }
-
+  componentWillUnmount () {
+    this.socket.close();
+  }
 
   update() {
     console.log(this.state.username)
@@ -97,7 +103,7 @@ class App extends React.Component {
       this.socket.send(JSON.stringify({
         type: "incomingMessage",
         id: uuid.v4(),
-        username: this.state.username,
+        username: this.state.username || "NoName!",
         oldusername: this.state.oldusername,
         content: this.state.value
       }));
@@ -145,7 +151,8 @@ class App extends React.Component {
     return (
       <div className="wrapper">
         <nav>
-          <h1>Chatty</h1>
+          <h1>Talk!</h1>
+          <div className="usercount">{this.state.loggedIn}: Logged in</div>
         </nav>
         <MessageList messages={this.state.message}/>
         <ChatBar text={valueLink}/>
