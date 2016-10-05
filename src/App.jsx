@@ -26,11 +26,14 @@ class App extends React.Component {
       message: [],
       value: '',
       idvalue: '',
-      username: ''
+      username: '',
+      oldusername: '',
+      firstmessage: false
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleUser = this.handleUser.bind(this);
     this.update = this.update.bind(this);
+    this.updateUser = this.update.bind(this);
     this.socket = '';
 
   }
@@ -50,25 +53,84 @@ class App extends React.Component {
       console.log('Connected to server')
     }
     this.socket.onmessage = function (event) {
+      console.log('message here');
       let data = JSON.parse(event.data);
-      this.state.message.push({id:data.id,  username:data.username , content: data.content});
-      this.setState({value: ""})
+      console.log(data);
+      switch(data.type) {
+        case "incomingMessage":
+          this.state.message.push({
+            id: data.id,
+            username: data.username ,
+            content: data.content
+          });
+          break;
+        case "incomingNotification":
+          this.state.message.push({
+            id: data.id,
+            username: "",
+            content: `${data.oldusername} has change their name to ${data.username}!`
+          })
+          // this.state.message.push({
+          //   id: data.id,
+          //   username: data.username ,
+          //   content: data.content
+          // });
+          // this.setState({
+          //   value: "",
+          //   oldusername: data.username
+          // })
+          break;
+        default:
+
+          throw new Error("Unknown event type " + data.type);
+      }
       this.forceUpdate()
     }.bind(this)
   }
 
 
   update() {
+    console.log(this.state.username)
+    console.log(this.state.oldusername)
     console.log("update");
+    if(this.state.username == this.state.oldusername || this.state.firstmessage === false){
+      this.socket.send(JSON.stringify({
+        type: "incomingMessage",
+        id: uuid.v4(),
+        username: this.state.username,
+        oldusername: this.state.oldusername,
+        content: this.state.value
+      }));
+      this.setState({
+        value: "",
+        oldusername: this.state.username,
+        firstmessage: true
+      })
+      // this.state.firstmessage = true;
+    } else {
+      this.socket.send(JSON.stringify({
+        type: "incomingNotification",
+        id: uuid.v4(),
+        username: this.state.username,
+        oldusername: this.state.oldusername,
+      }));
+      this.socket.send(JSON.stringify({
+        type: "incomingMessage",
+        id: uuid.v4(),
+        username: this.state.username,
+        oldusername: this.state.oldusername,
+        content: this.state.value
+      }));
+    }
+  }
+  updateUser() {
+    console.log(this.socket)
     this.socket.send(JSON.stringify({
+      type: "incomingNotification",
       id: uuid.v4(),
       username: this.state.username,
-      content: this.state.value
+      oldusername: this.state.oldusername
     }));
-    // this.state.message.messages.push({id: uuid.v4(), username: this.state.username, content: this.state.value});
-    // this.setState({message: this.state.message})
-    // this.setState({value: ""})
-    // this.state.idvalue += 1;
   }
   render() {
     console.log("Rendering <App/>");
@@ -77,7 +139,8 @@ class App extends React.Component {
       requestChange: this.handleChange,
       update: this.update,
       username: this.state.username,
-      userChange: this.handleUser
+      userChange: this.handleUser,
+      updateUser: this.updateUser
     };
     return (
       <div className="wrapper">

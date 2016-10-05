@@ -4,8 +4,14 @@ class ChatBar extends React.Component {
   constructor(props) {
     super(props);
   }
-
+  handleUserChange(e) {
+    e.preventDefault();
+    if(e.key=== "Enter"){
+      this.props.text.updateUser()
+    }
+  }
   handleKeyPress(e) {
+    e.preventDefault();
     if(e.key=== "Enter"){
       this.props.text.update()
     }
@@ -21,6 +27,7 @@ class ChatBar extends React.Component {
         placeholder="Your Name (Optional)"
         value={this.props.text.username}
         onChange={this.props.text.userChange}
+        onKeyUp={this.handleUserChange.bind(this)}
          />
         <input
         id="new-message"

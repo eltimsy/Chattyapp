@@ -30,9 +30,17 @@ wss.on('connection', (ws) => {
     wss.send('Connected to Server');
   })
   ws.on('message', function incoming(message) {
+    console.log('message received')
     let mess = JSON.parse(message);
-    console.log(`User ${mess.username} said ${mess.content}`);
-    wss.broadcast(JSON.stringify(mess));
+    if (mess.type === 'incomingMessage') {
+      console.log(`User ${mess.username} said ${mess.content}`);
+      wss.broadcast(JSON.stringify(mess));
+    }
+    else if (mess.type === 'incomingNotification') {
+      console.log(`${mess.oldusername} changed their name to ${mess.username}`)
+      wss.broadcast(JSON.stringify(mess));
+    }
+
     //ws.send("hello");
   });
 
