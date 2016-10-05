@@ -7,7 +7,7 @@ let Message = React.createClass({
       color: this.props.color
     };
     let fiximage = {
-      width: '500px',
+      //width: '500px',
     };
     console.log("Rendering <Message/>");
     return (

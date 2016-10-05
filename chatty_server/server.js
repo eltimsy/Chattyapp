@@ -54,10 +54,12 @@ wss.on('connection', (ws) => {
       } else {
         mess.image = "";
       }
+      ws.name = mess.username;
       wss.broadcast(JSON.stringify(mess));
     }
     else if (mess.type === 'incomingNotification') {
       console.log(`${mess.oldusername} changed their name to ${mess.username}`)
+      ws.name = mess.username;
       wss.broadcast(JSON.stringify(mess));
     }
 
@@ -67,6 +69,8 @@ wss.on('connection', (ws) => {
   ws.on('close', () => {
     console.log('Client disconnected')
     userCount.users -= 1;
-    wss.broadcast(JSON.stringify(userCount));
+    console.log(ws.name)
+    let logout = {type: 'userLeaves', username: ws.name, users: userCount.users};
+    wss.broadcast(JSON.stringify(logout));
   });
 });
