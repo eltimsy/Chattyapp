@@ -1,19 +1,12 @@
-React Boilerplate
+ChattyApp
 =====================
 
-A minimal and light dev environment for ReactJS.
+
+### Project Overview
+A react app that is similar to a chat room.  Uses websockets to allow real-time updates in chat messages.  App also assigns a colour to each user and users can type messages or add image URLS.
+
 
 ### Usage
-
-Clone the boilerplate and create your own git repo.
-
-```
-git clone git@github.com:lighthouse-labs/react-simple-boilerplate.git
-git remote rm origin
-git remote add origin [YOUR NEW REPOSITORY]
-# Manually update your package.json file
-```
-
 Install the dependencies and start the server.
 
 ```
