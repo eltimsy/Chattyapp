@@ -5,6 +5,8 @@ ChattyApp
 ### Project Overview
 A react app that is similar to a chat room.  Uses websockets to allow real-time updates in chat messages.  App also assigns a colour to each user and users can type messages or add image URLS.
 
+## Learned to use:
+Built to learn to use React, Babel and Webpack
 
 ### Usage
 Install the dependencies and start the server.
